@@ -1,7 +1,7 @@
 export const VIDEO_AUDIT_METADATA = {
-  auditedAt: '2026-05-18T23:54:25.475Z',
+  auditedAt: '2026-05-19T19:21:55.918Z',
   method: 'YouTube search candidates verified with youtube.com/oembed HTTP 200 responses',
-  exerciseCount: 50,
+  exerciseCount: 57,
 }
 
 const VERIFIED_EXERCISE_VIDEOS = {
@@ -130,6 +130,21 @@ const VERIFIED_EXERCISE_VIDEOS = {
     title: 'Bulletproof Step-by-step Guide to the Half Kneeling Hip Flexor Stretch',
     source: '[P]rehab',
   },
+  'ninety-ninety-hip-switch': {
+    id: 'F5owFeKgpoc',
+    title: 'Unlock your Hips With this Mobility Exercise 90/90 Hip Switch',
+    source: 'Rehab Hero',
+  },
+  'figure-four-stretch': {
+    id: 'nj1-GzbAauI',
+    title: 'Figure 4 Stretch - Piriformis and Glutes Stretch',
+    source: 'Rehab Hero',
+  },
+  'standing-hip-circles': {
+    id: 'xL6u2581tAE',
+    title: 'Standing Hip Circles (Hip CARs)',
+    source: 'Luke Hartmann',
+  },
   'glute-bridge': {
     id: 'Xp33YgPZgns',
     title: 'Best Hip Exercise - The Glute Bridge',
@@ -144,6 +159,11 @@ const VERIFIED_EXERCISE_VIDEOS = {
     id: 'FDMDqnbkzis',
     title: 'Sidelying Hip Abduction - Strengthen Gluteus Medius',
     source: 'Ethos PT',
+  },
+  'lateral-band-walk': {
+    id: 'HW9xLHrLhxI',
+    title: 'Lateral Band Walks',
+    source: 'Trifecta Therapeutics: Sports Rehab & Performance',
   },
   'hip-thrust': {
     id: 'TdLNL07U8EA',
@@ -174,6 +194,21 @@ const VERIFIED_EXERCISE_VIDEOS = {
     id: 'fyGmgHAt9rg',
     title: 'Romanian Deadlift (Hip Hinge)',
     source: 'Physio Room Co',
+  },
+  'heel-slide': {
+    id: 'zlxxgZqZuPQ',
+    title: 'Heel slides for knee range of motion',
+    source: 'The Running PTs',
+  },
+  'quad-set': {
+    id: '5TUK4uT2nnw',
+    title: 'Quad Set Exercise Demonstration - Physical Therapy Exercises',
+    source: 'TSAOG Orthopaedics & Spine',
+  },
+  'short-arc-quad': {
+    id: 'EZDkztOXPJU',
+    title: 'Short arc quad - Fit Family Physical Therapy',
+    source: 'Fit Family Physical Therapy',
   },
   'quad-stretch-standing': {
     id: 'zi5__zBRzYc',

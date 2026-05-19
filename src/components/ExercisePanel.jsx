@@ -89,6 +89,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, routineGoal
   const [activeFilter, setActiveFilter] = useState('all')
   const [activeExerciseId, setActiveExerciseId] = useState(null)
   const [hasInteractedWithVideo, setHasInteractedWithVideo] = useState(false)
+  const [videoResetKey, setVideoResetKey] = useState(0)
 
   const muscle = selectedMuscleId ? MUSCLES[selectedMuscleId] : null
 
@@ -125,6 +126,19 @@ export default function ExercisePanel({ selectedMuscleId, exercises, routineGoal
     return hasRoutineGoal && hasGoalExercises ? routineGoalId : 'all'
   }, [exercises, routineGoalId])
 
+  const handleFilterChange = (nextFilter) => {
+    if (nextFilter === activeFilter) return
+
+    const nextExercises = nextFilter === 'all'
+      ? exercises
+      : exercises.filter((exercise) => exercise.goals.includes(nextFilter))
+
+    setActiveFilter(nextFilter)
+    setActiveExerciseId(nextExercises[0]?.id ?? exercises[0]?.id ?? null)
+    setHasInteractedWithVideo(false)
+    setVideoResetKey((key) => key + 1)
+  }
+
   useEffect(() => {
     const preferredExercises = preferredFilter === 'all'
       ? exercises
@@ -132,6 +146,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, routineGoal
     setActiveFilter(preferredFilter)
     setActiveExerciseId(preferredExercises[0]?.id ?? exercises[0]?.id ?? null)
     setHasInteractedWithVideo(false)
+    setVideoResetKey((key) => key + 1)
   }, [selectedMuscleId, exercises, preferredFilter])
 
   useEffect(() => {
@@ -272,7 +287,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, routineGoal
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveFilter(tab.id)}
+                    onClick={() => handleFilterChange(tab.id)}
                     style={{
                       padding: '5px 11px',
                       borderRadius: 20,
@@ -359,7 +374,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, routineGoal
                           }}
                         >
                           <iframe
-                            key={`${activeExercise.id}-${hasInteractedWithVideo ? 'play' : 'ready'}`}
+                            key={`${activeExercise.id}-${videoResetKey}-${hasInteractedWithVideo ? 'play' : 'ready'}`}
                             title={`${activeExercise.name} video`}
                             src={activeVideoUrl}
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

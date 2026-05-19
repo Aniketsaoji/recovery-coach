@@ -56,7 +56,6 @@ function WizardBoard({
 
   const handleGoalSelect = (id) => {
     onGoalChange(id)
-    setTimeout(() => goTo(3), 160)
   }
 
   // Keep step access tied to user-selectable routine inputs.
@@ -68,10 +67,6 @@ function WizardBoard({
     }
     setMaxStep((m) => Math.max(m, 2))
   }, [selectedMuscleIds])
-
-  React.useEffect(() => {
-    if (selectedMuscleIds.length > 0 && goalId) setMaxStep((m) => Math.max(m, 3))
-  }, [goalId, selectedMuscleIds.length])
 
   const variants = {
     enter: (d) => ({ x: d > 0 ? 52 : -52, opacity: 0 }),
@@ -110,10 +105,11 @@ function WizardBoard({
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 26 }}>
         {STEPS.map(({ n, label }, i) => {
           const reachable = n !== step && maxStep >= n
+          const complete = n < step
           return (
             <React.Fragment key={n}>
               {i > 0 && (
-                <div style={{ flex: 1, height: 1.5, background: maxStep > i ? '#3b82f6' : border, transition: 'background .35s ease', margin: '0 6px' }} />
+                <div style={{ flex: 1, height: 1.5, background: step > i ? '#3b82f6' : border, transition: 'background .35s ease', margin: '0 6px' }} />
               )}
               <div
                 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, cursor: reachable ? 'pointer' : 'default' }}
@@ -122,16 +118,16 @@ function WizardBoard({
               >
                 <div style={{
                   width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-                  border: `1.5px solid ${step === n ? '#3b82f6' : maxStep >= n ? '#10b981' : border}`,
-                  background: step === n ? 'rgba(59,130,246,.12)' : maxStep >= n ? 'rgba(16,185,129,.12)' : 'transparent',
-                  color: step === n ? '#60a5fa' : maxStep >= n ? '#10b981' : quiet,
+                  border: `1.5px solid ${step === n ? '#3b82f6' : complete ? '#10b981' : border}`,
+                  background: step === n ? 'rgba(59,130,246,.12)' : complete ? 'rgba(16,185,129,.12)' : 'transparent',
+                  color: step === n ? '#60a5fa' : complete ? '#10b981' : quiet,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 12, fontWeight: 600, transition: 'all .3s ease',
                   opacity: reachable ? 1 : step === n ? 1 : 0.5,
                 }}>
-                  {maxStep >= n && step !== n ? <Check size={12} /> : n}
+                  {complete ? <Check size={12} /> : n}
                 </div>
-                <span style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: step === n ? '#60a5fa' : maxStep >= n ? '#10b981' : quiet, transition: 'color .3s' }}>
+                <span style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: step === n ? '#60a5fa' : complete ? '#10b981' : quiet, transition: 'color .3s' }}>
                   {label}
                 </span>
               </div>
@@ -207,7 +203,7 @@ function WizardBoard({
               For {selectedAreas.join(' & ')}
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
               {GOAL_CHOICES.map(({ id, label, helper, Icon, color }) => {
                 const sel = goalId === id
                 return (
@@ -233,6 +229,24 @@ function WizardBoard({
                 )
               })}
             </div>
+
+            <button
+              type="button"
+              onClick={() => goalId && goTo(3)}
+              disabled={!goalId}
+              style={{
+                width: '100%', padding: '13px', borderRadius: 9, border: 'none',
+                background: goalId ? 'linear-gradient(135deg, #3b82f6, #06b6d4)' : isLight ? '#e8eef6' : '#1e3a5f',
+                color: goalId ? '#fff' : quiet,
+                fontSize: 15,
+                fontWeight: 600,
+                cursor: goalId ? 'pointer' : 'default',
+                opacity: goalId ? 1 : 0.45,
+                transition: 'all .2s ease',
+              }}
+            >
+              {goalId ? 'Next — choose your time →' : 'Choose a goal to continue'}
+            </button>
           </motion.div>
         )}
 
