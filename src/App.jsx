@@ -1,11 +1,11 @@
-import { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Activity, Check, Clock, Dumbbell, Moon, Search, ShieldCheck, Sun, Zap } from 'lucide-react'
 import BodyMap from './components/BodyMap.jsx'
 import SearchMode from './components/SearchMode.jsx'
 import ExercisePanel from './components/ExercisePanel.jsx'
 import { MUSCLES } from './data/muscles.js'
-import { EXERCISES } from './data/exercises.js'
+import { TIME_CHOICES, getFocusedExercises } from './data/routines.js'
 
 const TABS = [
   { id: 'map', label: 'Body Map', Icon: Activity },
@@ -19,47 +19,23 @@ const GOAL_CHOICES = [
   { id: 'strengthen', label: 'Get stronger', helper: 'Build support', Icon: Activity, color: '#8b5cf6' },
 ]
 
-const TIME_CHOICES = [
-  { id: '5', label: '5 min', exerciseLimit: 2 },
-  { id: '10', label: '10 min', exerciseLimit: 3 },
-  { id: '15', label: '15 min', exerciseLimit: 4 },
-  { id: '20', label: '20+ min', exerciseLimit: 6 },
-]
-
-function getFocusedExercises(muscleIds, goalId, timeId) {
-  const ids = Array.isArray(muscleIds) ? muscleIds : [muscleIds].filter(Boolean)
-  const isPrimaryMatch = (exercise) => ids.includes(exercise.muscles[0])
-  const isAnyMatch = (exercise) => ids.some((id) => exercise.muscles.includes(id))
-  const primaryMatches = EXERCISES.filter(isPrimaryMatch)
-  const secondaryMatches = EXERCISES.filter((exercise) => !isPrimaryMatch(exercise) && isAnyMatch(exercise))
-  const applyGoal = (items) => {
-    if (!goalId) return items
-    const withGoal = items.filter((exercise) => exercise.goals.includes(goalId))
-    return withGoal.length > 0 ? withGoal : items
-  }
-  const ordered = primaryMatches.length > 0
-    ? applyGoal(primaryMatches)
-    : applyGoal(secondaryMatches)
-  const limit = TIME_CHOICES.find((time) => time.id === timeId)?.exerciseLimit
-  const deduped = [...new Map(ordered.map((ex) => [ex.id, ex])).values()]
-  return limit ? deduped.slice(0, limit) : deduped
-}
-
-function IntakeBoard({
+function WizardBoard({
   goalId,
   timeId,
   selectedMuscleIds,
-  isCompact,
   theme,
+  isPhone = false,
+  panelOpen = false,
   onGoalChange,
   onTimeChange,
   onMuscleSelect,
   onClearAreas,
   onBuildRoutine,
 }) {
-  const [hoveredMuscleId, setHoveredMuscleId] = useState(null)
-  const selectedGoal = GOAL_CHOICES.find((goal) => goal.id === goalId)
-  const selectedTime = TIME_CHOICES.find((time) => time.id === timeId)
+  const [step, setStep] = useState(1)
+  const [dir, setDir] = useState(1)
+  const [maxStep, setMaxStep] = useState(1)
+
   const isLight = theme === 'light'
   const surface = isLight ? '#ffffff' : '#0a1628'
   const control = isLight ? '#f7f9fc' : '#0d1b2e'
@@ -67,301 +43,273 @@ function IntakeBoard({
   const text = isLight ? '#172033' : '#f1f5f9'
   const muted = isLight ? '#65758b' : '#94a3b8'
   const quiet = isLight ? '#7b8798' : '#64748b'
+
   const selectedAreas = selectedMuscleIds.map((id) => MUSCLES[id]?.name).filter(Boolean)
-  const hoveredMuscle = hoveredMuscleId ? MUSCLES[hoveredMuscleId] : null
-  const canBuild = selectedMuscleIds.length > 0 && goalId && timeId
+  const selectedGoal = GOAL_CHOICES.find((g) => g.id === goalId)
+  const canBuildRoutine = selectedMuscleIds.length > 0 && Boolean(goalId) && Boolean(timeId)
+
+  const goTo = (next) => {
+    setDir(next > step ? 1 : -1)
+    setStep(next)
+    setMaxStep((m) => Math.max(m, next))
+  }
+
+  const handleGoalSelect = (id) => {
+    onGoalChange(id)
+    setTimeout(() => goTo(3), 160)
+  }
+
+  // Keep step access tied to user-selectable routine inputs.
+  React.useEffect(() => {
+    if (selectedMuscleIds.length === 0) {
+      setStep(1)
+      setMaxStep(1)
+      return
+    }
+    setMaxStep((m) => Math.max(m, 2))
+  }, [selectedMuscleIds])
+
+  React.useEffect(() => {
+    if (selectedMuscleIds.length > 0 && goalId) setMaxStep((m) => Math.max(m, 3))
+  }, [goalId, selectedMuscleIds.length])
+
+  const variants = {
+    enter: (d) => ({ x: d > 0 ? 52 : -52, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (d) => ({ x: d > 0 ? -52 : 52, opacity: 0 }),
+  }
+  const tr = { duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }
+
+  const STEPS = [
+    { n: 1, label: 'Area' },
+    { n: 2, label: 'Goal' },
+    { n: 3, label: 'Time' },
+  ]
 
   return (
     <section
       style={{
         width: '100%',
-        maxWidth: isCompact ? 760 : 1120,
-        maxHeight: isCompact ? 'none' : 'calc(100vh - 88px)',
-        borderRadius: 8,
-        border: `1px solid ${border}`,
+        maxWidth: 520,
         background: surface,
-        padding: isCompact ? 12 : 14,
-        overflow: isCompact ? 'visible' : 'hidden',
+        border: `1px solid ${border}`,
+        borderRadius: 12,
+        padding: isPhone ? '20px 16px 24px' : '28px 32px 32px',
+        overflow: 'hidden',
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: isCompact ? 12 : 9 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <h1
-            style={{
-              fontSize: isCompact ? 24 : 30,
-              lineHeight: 1.05,
-              fontWeight: 850,
-              color: text,
-              margin: 0,
-              letterSpacing: 0,
-            }}
-          >
-            Build a PT routine
-          </h1>
-          <p style={{ fontSize: 15, color: muted, lineHeight: 1.35, margin: 0 }}>
-            Pick where, goal, and time. Keep it all on one screen.
-          </p>
-        </div>
+      {/* Tagline */}
+      <div style={{ marginBottom: 22 }}>
+        <h1 style={{ fontSize: isPhone ? 20 : 24, fontWeight: 700, color: text, margin: 0, letterSpacing: '-0.02em', lineHeight: 1.15 }}>
+          Three questions to recover.
+        </h1>
+        <p style={{ fontSize: 13, color: muted, margin: '3px 0 0' }}>In the time you've got.</p>
+      </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: isCompact ? '1fr' : 'minmax(240px, 0.8fr) minmax(330px, 1.2fr)',
-            gap: 12,
-            alignItems: 'stretch',
-          }}
-        >
-          <div
-            style={{
-              border: `1px solid ${border}`,
-              borderRadius: 8,
-              background: control,
-              padding: isCompact ? 14 : 12,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: isCompact ? 10 : 8,
-              minHeight: isCompact ? 520 : 0,
-            }}
-          >
-            <h1
-              style={{
-                fontSize: 13,
-                color: quiet,
-                fontWeight: 800,
-                margin: 0,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-              }}
-            >
-              1. Where?
-            </h1>
-            <p style={{ fontSize: 16, color: muted, lineHeight: 1.35, margin: 0 }}>
-              What hurts or needs work? Click one or more body areas.
+      {/* Step indicator */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 26 }}>
+        {STEPS.map(({ n, label }, i) => {
+          const reachable = n !== step && maxStep >= n
+          return (
+            <React.Fragment key={n}>
+              {i > 0 && (
+                <div style={{ flex: 1, height: 1.5, background: maxStep > i ? '#3b82f6' : border, transition: 'background .35s ease', margin: '0 6px' }} />
+              )}
+              <div
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, cursor: reachable ? 'pointer' : 'default' }}
+                onClick={() => reachable && goTo(n)}
+                title={reachable ? `Go back to ${label}` : undefined}
+              >
+                <div style={{
+                  width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                  border: `1.5px solid ${step === n ? '#3b82f6' : maxStep >= n ? '#10b981' : border}`,
+                  background: step === n ? 'rgba(59,130,246,.12)' : maxStep >= n ? 'rgba(16,185,129,.12)' : 'transparent',
+                  color: step === n ? '#60a5fa' : maxStep >= n ? '#10b981' : quiet,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 12, fontWeight: 600, transition: 'all .3s ease',
+                  opacity: reachable ? 1 : step === n ? 1 : 0.5,
+                }}>
+                  {maxStep >= n && step !== n ? <Check size={12} /> : n}
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: step === n ? '#60a5fa' : maxStep >= n ? '#10b981' : quiet, transition: 'color .3s' }}>
+                  {label}
+                </span>
+              </div>
+            </React.Fragment>
+          )
+        })}
+      </div>
+
+      <AnimatePresence mode="wait" custom={dir}>
+
+        {/* ── STEP 1: Body map ── */}
+        {step === 1 && (
+          <motion.div key="s1" custom={dir} variants={variants} initial="enter" animate="center" exit="exit" transition={tr}>
+            <h2 style={{ fontSize: isPhone ? 18 : 20, fontWeight: 700, color: text, margin: '0 0 5px', letterSpacing: '-0.01em' }}>
+              Where does it hurt?
+            </h2>
+            <p style={{ fontSize: 13, color: muted, margin: '0 0 18px', lineHeight: 1.45 }}>
+              Tap the area. Multiple spots? Tap them all.
             </p>
 
-            <div style={{ flex: 1, minHeight: 0, display: 'grid', placeItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
               <BodyMap
                 selectedMuscleId={selectedMuscleIds}
                 onMuscleClick={onMuscleSelect}
                 theme={theme}
-                compact={!isCompact}
-                onHoverChange={setHoveredMuscleId}
+                wizard
+                mobile={isPhone}
               />
             </div>
 
-            <div
+            {selectedAreas.length > 0 && (
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
+                {selectedAreas.map((area) => (
+                  <span key={area} style={{ borderRadius: 999, background: isLight ? '#e8f3ff' : '#1e3a5f', color: isLight ? '#1d4ed8' : '#bfdbfe', fontSize: 12, fontWeight: 500, padding: '4px 10px' }}>
+                    {area}
+                  </span>
+                ))}
+                <button type="button" onClick={onClearAreas} style={{ border: `1px solid ${border}`, background: 'transparent', color: quiet, borderRadius: 7, fontSize: 12, fontWeight: 500, padding: '4px 8px', cursor: 'pointer' }}>
+                  Clear
+                </button>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => selectedMuscleIds.length > 0 && goTo(2)}
               style={{
-                display: 'grid',
-                gridTemplateColumns: isCompact ? '1fr' : 'minmax(130px, 0.8fr) minmax(0, 1.2fr)',
-                gap: 10,
-                alignItems: 'center',
-                minHeight: 56,
+                width: '100%', padding: '13px', borderRadius: 9, border: 'none',
+                background: selectedMuscleIds.length > 0 ? 'linear-gradient(135deg, #3b82f6, #06b6d4)' : isLight ? '#e8eef6' : '#1e3a5f',
+                color: selectedMuscleIds.length > 0 ? '#fff' : quiet,
+                fontSize: 15, fontWeight: 600,
+                cursor: selectedMuscleIds.length > 0 ? 'pointer' : 'default',
+                opacity: selectedMuscleIds.length > 0 ? 1 : 0.45,
+                transition: 'all .2s ease',
               }}
             >
-              <div
-                style={{
-                  borderRadius: 8,
-                  border: `1px solid ${hoveredMuscle ? hoveredMuscle.color : border}`,
-                  background: hoveredMuscle ? `${hoveredMuscle.color}${isLight ? '12' : '18'}` : surface,
-                  padding: '8px 10px',
-                }}
-              >
-                <div style={{ color: quiet, fontSize: 11, fontWeight: 850, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  Hovering
-                </div>
-                <div style={{ color: hoveredMuscle?.color || text, fontSize: 18, fontWeight: 900, marginTop: 2 }}>
-                  {hoveredMuscle?.name || 'Body map'}
-                </div>
-              </div>
+              {selectedMuscleIds.length > 0 ? 'Next — set your goal →' : 'Tap an area to continue'}
+            </button>
+          </motion.div>
+        )}
 
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', minHeight: 36 }}>
-                {selectedAreas.length > 0 ? (
-                  <>
-                    {selectedAreas.map((area) => (
-                      <span
-                        key={area}
-                        style={{
-                          borderRadius: 999,
-                          background: isLight ? '#e8f3ff' : '#1e3a5f',
-                          color: isLight ? '#1d4ed8' : '#bfdbfe',
-                          fontSize: 14,
-                          fontWeight: 800,
-                          padding: '6px 10px',
-                        }}
-                      >
-                        {area}
-                      </span>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={onClearAreas}
-                      style={{
-                        border: `1px solid ${border}`,
-                        background: surface,
-                        color: quiet,
-                        borderRadius: 8,
-                        fontSize: 13,
-                        fontWeight: 800,
-                        padding: '6px 9px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Clear
-                    </button>
-                  </>
-                ) : (
-                  <span style={{ color: quiet, fontSize: 13 }}>No area selected yet</span>
-                )}
-              </div>
+        {/* ── STEP 2: Goal ── */}
+        {step === 2 && (
+          <motion.div key="s2" custom={dir} variants={variants} initial="enter" animate="center" exit="exit" transition={tr}>
+            <button type="button" onClick={() => goTo(1)} style={{ background: 'transparent', border: 'none', color: quiet, fontSize: 13, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: '0 0 14px' }}>
+              ← Back
+            </button>
+
+            <h2 style={{ fontSize: isPhone ? 18 : 20, fontWeight: 700, color: text, margin: '0 0 5px', letterSpacing: '-0.01em' }}>
+              What's your goal?
+            </h2>
+            <p style={{ fontSize: 13, color: muted, margin: '0 0 18px' }}>
+              For {selectedAreas.join(' & ')}
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {GOAL_CHOICES.map(({ id, label, helper, Icon, color }) => {
+                const sel = goalId === id
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => handleGoalSelect(id)}
+                    style={{
+                      padding: '14px', borderRadius: 10,
+                      border: `1.5px solid ${sel ? color : border}`,
+                      background: sel ? `${color}${isLight ? '14' : '18'}` : control,
+                      cursor: 'pointer', textAlign: 'left',
+                      display: 'flex', flexDirection: 'column', gap: 8,
+                      minHeight: 90, transition: 'border-color .18s, background .18s',
+                    }}
+                  >
+                    <Icon size={20} color={color} />
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: sel ? color : text, lineHeight: 1.2 }}>{label}</div>
+                      <div style={{ fontSize: 12, color: quiet, marginTop: 3 }}>{helper}</div>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
-          </div>
+          </motion.div>
+        )}
 
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12,
-            }}
-          >
-            <div
-              style={{
-                border: `1px solid ${border}`,
-                borderRadius: 8,
-                background: control,
-                padding: isCompact ? 14 : 12,
-              }}
-            >
-              <div style={{ fontSize: 12, color: quiet, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-                2. Goal?
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: isCompact ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: 8 }}>
-                {GOAL_CHOICES.map(({ id, label, helper, Icon, color }) => {
-                  const selected = goalId === id
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => onGoalChange(id)}
-                      style={{
-                        minHeight: isCompact ? 70 : 64,
-                        borderRadius: 8,
-                        border: `1px solid ${selected ? color : border}`,
-                        background: selected ? `${color}${isLight ? '14' : '18'}` : surface,
-                        color: text,
-                        padding: isCompact ? 12 : 10,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 10,
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                      }}
-                    >
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <Icon size={18} color={color} />
-                        <span>
-                          <span style={{ display: 'block', fontSize: 17, fontWeight: 850, lineHeight: 1.15 }}>{label}</span>
-                          <span style={{ display: 'block', fontSize: 13, color: quiet, marginTop: 2 }}>{helper}</span>
-                        </span>
-                      </span>
-                      {selected && <Check size={16} color={color} />}
-                    </button>
-                  )
-                })}
-              </div>
+        {/* ── STEP 3: Time ── */}
+        {step === 3 && (
+          <motion.div key="s3" custom={dir} variants={variants} initial="enter" animate="center" exit="exit" transition={tr}>
+            <button type="button" onClick={() => goTo(2)} style={{ background: 'transparent', border: 'none', color: quiet, fontSize: 13, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, padding: '0 0 14px' }}>
+              ← Back
+            </button>
+
+            <h2 style={{ fontSize: isPhone ? 18 : 20, fontWeight: 700, color: text, margin: '0 0 5px', letterSpacing: '-0.01em' }}>
+              How long have you got?
+            </h2>
+            <p style={{ fontSize: 13, color: muted, margin: '0 0 18px' }}>
+              {selectedAreas.join(' & ')} · {selectedGoal?.label}
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+              {TIME_CHOICES.map(({ id, label, helper }) => {
+                const sel = timeId === id
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => onTimeChange(id)}
+                    style={{
+                      padding: '14px', borderRadius: 10,
+                      border: `1.5px solid ${sel ? '#06b6d4' : border}`,
+                      background: sel ? `rgba(6,182,212,${isLight ? '.1' : '.08'})` : control,
+                      cursor: 'pointer',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
+                      minHeight: 78, transition: 'border-color .18s, background .18s',
+                    }}
+                  >
+                    <Clock size={15} color={sel ? '#06b6d4' : quiet} />
+                    <span style={{ fontSize: 16, fontWeight: 600, color: sel ? '#06b6d4' : text }}>{label}</span>
+                    <span style={{ fontSize: 11, color: sel ? 'rgba(6,182,212,.7)' : quiet }}>{helper}</span>
+                  </button>
+                )
+              })}
             </div>
 
-            <div
-              style={{
-                border: `1px solid ${border}`,
-                borderRadius: 8,
-                background: control,
-                padding: isCompact ? 14 : 12,
-              }}
-            >
-              <div style={{ fontSize: 12, color: quiet, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-                3. Time?
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8 }}>
-                {TIME_CHOICES.map(({ id, label }) => {
-                  const selected = timeId === id
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => onTimeChange(id)}
-                      style={{
-                        minHeight: isCompact ? 48 : 46,
-                        borderRadius: 8,
-                        border: selected ? '1px solid #06b6d4' : `1px solid ${border}`,
-                        background: selected ? `#06b6d4${isLight ? '14' : '18'}` : surface,
-                        color: text,
-                        fontSize: 17,
-                        fontWeight: 850,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <Clock size={15} />
-                      {label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
+            <AnimatePresence>
+              {timeId && (
+                <motion.button
+                  type="button"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={onBuildRoutine}
+                  disabled={!canBuildRoutine}
+                  style={{
+                    width: '100%', padding: '14px', borderRadius: 9, border: 'none',
+                    background: canBuildRoutine
+                      ? 'linear-gradient(135deg, #10b981, #06b6d4)'
+                      : isLight ? '#e8eef6' : '#1e3a5f',
+                    color: canBuildRoutine ? '#042f2e' : quiet,
+                    fontSize: 16,
+                    fontWeight: 600,
+                    cursor: canBuildRoutine ? 'pointer' : 'not-allowed',
+                    opacity: canBuildRoutine ? 1 : 0.55,
+                  }}
+                >
+                  {canBuildRoutine ? (panelOpen ? 'Update routine' : 'Start the routine') : 'Choose an area first'}
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
 
-            <div
-              style={{
-                border: `1px solid ${border}`,
-                borderRadius: 8,
-                background: isLight ? '#f7fbff' : '#07111f',
-                padding: isCompact ? 14 : 12,
-              }}
-            >
-              <div style={{ fontSize: 12, color: quiet, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                Routine preview
-              </div>
-              <div style={{ fontSize: isCompact ? 20 : 22, color: text, fontWeight: 900, marginTop: 5 }}>
-                {selectedGoal?.label} in {selectedTime?.label}
-              </div>
-              <p style={{ fontSize: 14, color: muted, lineHeight: 1.35, marginTop: 5 }}>
-                {selectedAreas.length > 0
-                  ? `Focused on ${selectedAreas.join(', ')}.`
-                  : 'Choose a body area to make this specific.'}
-              </p>
-              <button
-                type="button"
-                onClick={onBuildRoutine}
-                disabled={!canBuild}
-                style={{
-                  width: '100%',
-                  minHeight: isCompact ? 48 : 46,
-                  borderRadius: 8,
-                  border: 'none',
-                  background: canBuild
-                    ? 'linear-gradient(135deg, #10b981, #06b6d4)'
-                    : isLight ? '#e8eef6' : '#1e3a5f',
-                  color: canBuild ? '#042f2e' : quiet,
-                  fontSize: 17,
-                  fontWeight: 950,
-                  marginTop: 12,
-                  cursor: canBuild ? 'pointer' : 'not-allowed',
-                }}
-              >
-                Build my routine
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      </AnimatePresence>
     </section>
   )
 }
 
-function MobileExerciseDrawer({ isOpen, selectedMuscleId, exercises, onClose }) {
+function MobileExerciseDrawer({ isOpen, selectedMuscleId, exercises, routineGoalId, onClose }) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -390,9 +338,9 @@ function MobileExerciseDrawer({ isOpen, selectedMuscleId, exercises, onClose }) 
               bottom: 0,
               left: 0,
               right: 0,
-              height: '80vh',
+              height: 'min(88dvh, 760px)',
               background: '#060b14',
-              borderRadius: '24px 24px 0 0',
+              borderRadius: '16px 16px 0 0',
               zIndex: 50,
               display: 'flex',
               flexDirection: 'column',
@@ -409,6 +357,7 @@ function MobileExerciseDrawer({ isOpen, selectedMuscleId, exercises, onClose }) 
               <ExercisePanel
                 selectedMuscleId={selectedMuscleId}
                 exercises={exercises}
+                routineGoalId={routineGoalId}
                 onClose={onClose}
               />
             </div>
@@ -427,11 +376,17 @@ export default function App() {
   const [selectedMuscleId, setSelectedMuscleId] = useState(null)
   const [selectedMuscleIds, setSelectedMuscleIds] = useState([])
   const [selectedExercises, setSelectedExercises] = useState([])
+  const [routineMuscleId, setRoutineMuscleId] = useState(null)
+  const [routineGoalId, setRoutineGoalId] = useState(null)
   const [panelOpen, setPanelOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [isPhone, setIsPhone] = useState(false)
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024)
+    const check = () => {
+      setIsMobile(window.innerWidth < 1200)
+      setIsPhone(window.innerWidth < 640)
+    }
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
@@ -449,43 +404,38 @@ export default function App() {
         : [...current, muscleId]
       const nextSelectedMuscleId = next.includes(muscleId) ? muscleId : next.at(-1) || null
       setSelectedMuscleId(nextSelectedMuscleId)
-      if (next.length === 0) {
-        setSelectedExercises([])
-        setPanelOpen(false)
-        return next
-      }
-      if (panelOpen) {
-        setSelectedExercises(getFocusedExercises(next, goalId, timeId))
-      }
       return next
     })
-  }, [goalId, panelOpen, timeId])
+  }, [])
 
   const handleClearAreas = useCallback(() => {
     setSelectedMuscleId(null)
     setSelectedMuscleIds([])
-    setSelectedExercises([])
-    setPanelOpen(false)
   }, [])
 
   const handleMuscleFocus = useCallback((muscleId) => {
     setSelectedMuscleId(muscleId)
     setSelectedMuscleIds([muscleId])
-    setSelectedExercises(getFocusedExercises([muscleId], goalId, timeId))
+    setRoutineMuscleId(muscleId)
+    setRoutineGoalId(goalId)
+    setSelectedExercises(getFocusedExercises([muscleId], goalId, timeId, muscleId))
     setPanelOpen(true)
   }, [goalId, timeId])
 
   const handleBuildRoutine = useCallback(() => {
     if (selectedMuscleIds.length === 0) return
-    setSelectedMuscleId((current) => current || selectedMuscleIds[0])
-    setSelectedExercises(getFocusedExercises(selectedMuscleIds, goalId, timeId))
+    const routineMuscleIds = [...selectedMuscleIds]
+    const nextRoutineMuscleId = (
+      selectedMuscleId && routineMuscleIds.includes(selectedMuscleId)
+        ? selectedMuscleId
+        : routineMuscleIds.at(-1)
+    )
+    setSelectedMuscleId(nextRoutineMuscleId)
+    setRoutineMuscleId(nextRoutineMuscleId)
+    setRoutineGoalId(goalId)
+    setSelectedExercises(getFocusedExercises(routineMuscleIds, goalId, timeId, nextRoutineMuscleId))
     setPanelOpen(true)
-  }, [goalId, selectedMuscleIds, timeId])
-
-  useEffect(() => {
-    if (!panelOpen || selectedMuscleIds.length === 0) return
-    setSelectedExercises(getFocusedExercises(selectedMuscleIds, goalId, timeId))
-  }, [goalId, panelOpen, selectedMuscleIds, timeId])
+  }, [goalId, selectedMuscleId, selectedMuscleIds, timeId])
 
   const handleExerciseSelect = useCallback((exercise) => {
     // Select the first muscle of the exercise
@@ -500,18 +450,21 @@ export default function App() {
       setSelectedMuscleId(null)
       setSelectedMuscleIds([])
       setSelectedExercises([])
+      setRoutineMuscleId(null)
+      setRoutineGoalId(null)
       setPanelOpen(false)
     }
   }, [isMobile])
 
-  const muscle = selectedMuscleId ? MUSCLES[selectedMuscleId] : null
+  const headerMuscleId = panelOpen ? routineMuscleId : selectedMuscleId
+  const muscle = headerMuscleId ? MUSCLES[headerMuscleId] : null
 
   return (
     <div
       className="pt-app"
       data-theme={theme}
       style={{
-        minHeight: '100vh',
+        minHeight: '100dvh',
         background: '#060b14',
         display: 'flex',
         flexDirection: 'column',
@@ -521,12 +474,12 @@ export default function App() {
       {/* ── HEADER ── */}
       <header
         style={{
-          height: 60,
+          height: isPhone ? 54 : 60,
           borderBottom: '1px solid #1e3a5f',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 24px',
+          padding: isPhone ? '0 10px' : '0 24px',
           flexShrink: 0,
           background: 'rgba(6,11,20,0.95)',
           backdropFilter: 'blur(12px)',
@@ -564,10 +517,10 @@ export default function App() {
                 lineHeight: 1,
               }}
             >
-              PT Guide
+              Recovery Coach
             </div>
-            <div style={{ fontSize: 10, color: '#475569', lineHeight: 1, marginTop: 2 }}>
-              Physical Therapy Assistant
+            <div style={{ display: isPhone ? 'none' : 'block', fontSize: 10, color: '#475569', lineHeight: 1, marginTop: 2 }}>
+              Smart routines for pain & mobility
             </div>
           </div>
         </div>
@@ -617,7 +570,7 @@ export default function App() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 style={{
-                  display: 'flex',
+                  display: isPhone ? 'none' : 'flex',
                   alignItems: 'center',
                   gap: 6,
                   padding: '5px 12px',
@@ -673,7 +626,7 @@ export default function App() {
           flex: 1,
           display: 'flex',
           overflow: 'hidden',
-          height: 'calc(100vh - 60px)',
+          height: isPhone ? 'calc(100dvh - 54px)' : 'calc(100dvh - 60px)',
         }}
       >
         {/* ── LEFT PANEL ── */}
@@ -701,16 +654,17 @@ export default function App() {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  padding: isMobile ? '14px' : '18px 20px',
-                  gap: 16,
+                  padding: isPhone ? '8px' : isMobile ? '14px' : '18px 20px',
+                  gap: isPhone ? 8 : 16,
                 }}
               >
-                <IntakeBoard
+                <WizardBoard
                   goalId={goalId}
                   timeId={timeId}
                   selectedMuscleIds={selectedMuscleIds}
-                  isCompact={isMobile}
+                  isPhone={isPhone}
                   theme={theme}
+                  panelOpen={panelOpen}
                   onGoalChange={setGoalId}
                   onTimeChange={setTimeId}
                   onMuscleSelect={handleMuscleSelect}
@@ -732,6 +686,7 @@ export default function App() {
                 <SearchMode
                   onMuscleSelect={handleMuscleFocus}
                   onExerciseSelect={handleExerciseSelect}
+                  isPhone={isPhone}
                 />
               </motion.div>
             )}
@@ -754,8 +709,9 @@ export default function App() {
                 }}
               >
                 <ExercisePanel
-                  selectedMuscleId={selectedMuscleId}
+                  selectedMuscleId={routineMuscleId}
                   exercises={selectedExercises}
+                  routineGoalId={routineGoalId}
                   onClose={handlePanelClose}
                 />
               </motion.div>
@@ -767,8 +723,9 @@ export default function App() {
         {isMobile && (
           <MobileExerciseDrawer
             isOpen={panelOpen}
-            selectedMuscleId={selectedMuscleId}
+            selectedMuscleId={routineMuscleId}
             exercises={selectedExercises}
+            routineGoalId={routineGoalId}
             onClose={handlePanelClose}
           />
         )}

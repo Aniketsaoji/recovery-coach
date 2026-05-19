@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MUSCLES } from '../data/muscles.js'
 
@@ -205,13 +205,26 @@ function MuscleGroup({ part, selectedMuscleId, hoveredMuscle, onMuscleClick, onM
   )
 }
 
-export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark', compact = false, onHoverChange }) {
+export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark', compact = false, mobile = false, wizard = false, onHoverChange }) {
   const [view, setView] = useState('front')
   const [hoveredMuscle, setHoveredMuscle] = useState(null)
+  const [mousePos, setMousePos] = useState(null)
+  const containerRef = useRef(null)
   const parts = BODY_PARTS[view]
   const selectedIds = Array.isArray(selectedMuscleId) ? selectedMuscleId : [selectedMuscleId].filter(Boolean)
   const activeId = hoveredMuscle || selectedIds[0]
   const activeMuscle = activeId ? MUSCLES[activeId] : null
+  const hoveredMuscleObj = hoveredMuscle ? MUSCLES[hoveredMuscle] : null
+
+  const handleContainerMouseMove = (e) => {
+    if (!containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+  }
+
+  const handleContainerMouseLeave = () => {
+    setMousePos(null)
+  }
 
   const selectedIsHidden = useMemo(() => {
     if (selectedIds.length === 0) return false
@@ -229,13 +242,13 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
   }
 
   return (
-    <div className="flex flex-col items-center" style={{ width: 'min(100%, 430px)', gap: compact ? 8 : 16 }}>
+    <div className="flex flex-col items-center" style={{ width: 'min(100%, 430px)', gap: mobile ? 6 : compact ? 8 : 16 }}>
       <div
         className="flex items-center gap-1 p-1"
         style={{
           background: theme === 'light' ? '#ffffff' : '#0d1b2e',
           border: theme === 'light' ? '1px solid #d8e1ec' : '1px solid #1e3a5f',
-          borderRadius: 12,
+          borderRadius: 8,
         }}
       >
         {['front', 'back'].map((nextView) => (
@@ -245,7 +258,7 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
             className="px-4 py-1.5 text-sm font-semibold transition-all duration-200"
             style={{
               borderRadius: 8,
-              padding: compact ? '4px 12px' : undefined,
+              padding: mobile ? '4px 14px' : compact ? '4px 12px' : undefined,
               background:
                 view === nextView ? 'linear-gradient(135deg, #3b82f6, #06b6d4)' : 'transparent',
               color: view === nextView ? '#fff' : theme === 'light' ? '#64748b' : '#94a3b8',
@@ -257,7 +270,7 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
         ))}
       </div>
 
-      {!compact && (
+      {!compact && !wizard && (
         <div className="flex items-center justify-center" style={{ minWidth: 210, height: 32 }}>
           <AnimatePresence mode="wait">
             {activeMuscle ? (
@@ -281,9 +294,12 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
       )}
 
       <div
+        ref={containerRef}
         className="relative"
+        onMouseMove={handleContainerMouseMove}
+        onMouseLeave={handleContainerMouseLeave}
         style={{
-          width: compact ? 'clamp(135px, 16vw, 165px)' : 'clamp(270px, 32vw, 330px)',
+          width: mobile ? 'clamp(140px, 40vw, 160px)' : wizard ? 'clamp(170px, 20vw, 200px)' : compact ? 'clamp(135px, 16vw, 165px)' : 'clamp(270px, 32vw, 330px)',
           aspectRatio: '220 / 520',
           borderRadius: 8,
           background:
@@ -353,9 +369,55 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
             />
           </motion.svg>
         </AnimatePresence>
+
+        <AnimatePresence>
+          {hoveredMuscleObj && mousePos && (
+            <motion.div
+              key={hoveredMuscle}
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              transition={{ duration: 0.1 }}
+              style={{
+                position: 'absolute',
+                left: mousePos.x + 14,
+                top: mousePos.y - 38,
+                pointerEvents: 'none',
+                zIndex: 20,
+                background: theme === 'light' ? 'rgba(255,255,255,0.97)' : 'rgba(6,10,20,0.93)',
+                border: `1px solid ${hoveredMuscleObj.color}55`,
+                borderRadius: 7,
+                padding: '5px 11px',
+                boxShadow: theme === 'light'
+                  ? '0 2px 10px rgba(0,0,0,0.13)'
+                  : `0 2px 14px rgba(0,0,0,0.55), 0 0 0 1px ${hoveredMuscleObj.color}22`,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <span style={{
+                width: 7,
+                height: 7,
+                borderRadius: '50%',
+                background: hoveredMuscleObj.color,
+                flexShrink: 0,
+              }} />
+              <span style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: hoveredMuscleObj.color,
+                letterSpacing: '0.01em',
+              }}>
+                {hoveredMuscleObj.name}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      <div className="text-xs text-center" style={{ color: selectedIsHidden ? '#94a3b8' : '#475569', display: compact ? 'none' : 'block' }}>
+      <div className="text-xs text-center" style={{ color: selectedIsHidden ? '#94a3b8' : '#475569', display: compact || wizard ? 'none' : 'block' }}>
         {selectedIsHidden
           ? `Switch to ${view === 'front' ? 'Back' : 'Front'} view to see the selected area`
           : 'Click directly on a body region to show exercises'}

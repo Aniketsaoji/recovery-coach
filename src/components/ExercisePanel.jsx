@@ -85,7 +85,7 @@ function EmptyState() {
   )
 }
 
-export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) {
+export default function ExercisePanel({ selectedMuscleId, exercises, routineGoalId, onClose }) {
   const [activeFilter, setActiveFilter] = useState('all')
   const [activeExerciseId, setActiveExerciseId] = useState(null)
   const [hasInteractedWithVideo, setHasInteractedWithVideo] = useState(false)
@@ -119,12 +119,20 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
 
   const activeVideo = getExerciseVideo(activeExercise)
   const activeVideoUrl = getYouTubeEmbedUrl(activeExercise, hasInteractedWithVideo)
+  const preferredFilter = useMemo(() => {
+    const hasRoutineGoal = FILTER_TABS.some((tab) => tab.id === routineGoalId)
+    const hasGoalExercises = exercises.some((exercise) => exercise.goals.includes(routineGoalId))
+    return hasRoutineGoal && hasGoalExercises ? routineGoalId : 'all'
+  }, [exercises, routineGoalId])
 
   useEffect(() => {
-    setActiveFilter('all')
-    setActiveExerciseId(exercises[0]?.id ?? null)
+    const preferredExercises = preferredFilter === 'all'
+      ? exercises
+      : exercises.filter((exercise) => exercise.goals.includes(preferredFilter))
+    setActiveFilter(preferredFilter)
+    setActiveExerciseId(preferredExercises[0]?.id ?? exercises[0]?.id ?? null)
     setHasInteractedWithVideo(false)
-  }, [selectedMuscleId, exercises])
+  }, [selectedMuscleId, exercises, preferredFilter])
 
   useEffect(() => {
     if (!filteredExercises.length) return
@@ -165,9 +173,9 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
             {/* Header */}
             <div
               style={{
-                padding: '20px 20px 0',
+                padding: '14px 20px 0',
                 borderBottom: '1px solid #1e3a5f',
-                paddingBottom: 16,
+                paddingBottom: 12,
                 flexShrink: 0,
               }}
             >
@@ -189,19 +197,19 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
                   </div>
                   <h2
                     style={{
-                      fontSize: 22,
+                      fontSize: 20,
                       fontWeight: 800,
                       background: `linear-gradient(135deg, ${muscle.color}, #06b6d4)`,
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
                       backgroundClip: 'text',
-                      marginBottom: 6,
+                      marginBottom: 4,
                     }}
                   >
                     {muscle.name}
                   </h2>
                   {muscle.description && (
-                    <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, maxWidth: 380 }}>
+                    <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.35, maxWidth: 540 }}>
                       {muscle.description}
                     </p>
                   )}
@@ -229,7 +237,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
               </div>
 
               {/* Exercise count */}
-              <div style={{ marginTop: 12, marginBottom: 4 }}>
+              <div style={{ marginTop: 8 }}>
                 <span
                   style={{
                     fontSize: 12,
@@ -251,7 +259,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
               style={{
                 display: 'flex',
                 gap: 6,
-                padding: '12px 20px',
+                padding: '8px 20px',
                 overflowX: 'auto',
                 flexShrink: 0,
                 borderBottom: '1px solid #1e3a5f',
@@ -266,7 +274,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
                     key={tab.id}
                     onClick={() => setActiveFilter(tab.id)}
                     style={{
-                      padding: '6px 12px',
+                      padding: '5px 11px',
                       borderRadius: 20,
                       fontSize: 12,
                       fontWeight: 600,
@@ -304,7 +312,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
               style={{
                 flex: 1,
                 overflowY: 'auto',
-                padding: '16px 20px',
+                padding: '12px 20px 16px',
               }}
             >
               {filteredExercises.length === 0 ? (
@@ -336,7 +344,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
                   </button>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {activeExercise && (
                     <div>
                       {activeVideoUrl ? (
@@ -346,7 +354,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
                             overflow: 'hidden',
                             border: `1px solid ${muscle.color}45`,
                             background: '#050b13',
-                            aspectRatio: '16 / 9',
+                            height: 'clamp(220px, 38vh, 380px)',
                             boxShadow: `0 14px 34px ${muscle.color}16`,
                           }}
                         >
@@ -370,7 +378,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
                             borderRadius: 12,
                             border: `1px solid ${muscle.color}35`,
                             background: `linear-gradient(135deg, ${muscle.color}18, #0d1b2e)`,
-                            minHeight: 220,
+                            minHeight: 180,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -405,9 +413,9 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
                         </div>
                       )}
 
-                      <div style={{ marginTop: 12 }}>
+                      <div style={{ marginTop: 10 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
-                          <h3 style={{ color: '#f1f5f9', fontSize: 18, fontWeight: 800 }}>
+                          <h3 style={{ color: '#f1f5f9', fontSize: 17, fontWeight: 800 }}>
                             {activeExercise.name}
                           </h3>
                           {activeVideo && (
@@ -430,11 +438,11 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
                             </span>
                           )}
                         </div>
-                        <p style={{ color: '#64748b', fontSize: 13, lineHeight: 1.5 }}>
+                        <p style={{ color: '#64748b', fontSize: 13, lineHeight: 1.4 }}>
                           {activeExercise.description}
                         </p>
                         {activeVideo && (
-                          <p style={{ color: '#64748b', fontSize: 12, lineHeight: 1.5, marginTop: 6 }}>
+                          <p style={{ color: '#64748b', fontSize: 12, lineHeight: 1.35, marginTop: 4 }}>
                             Video: {activeVideo.title} · {activeVideo.source}
                           </p>
                         )}
@@ -445,7 +453,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, onClose }) 
                   <div
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))',
                       gap: 16,
                     }}
                   >

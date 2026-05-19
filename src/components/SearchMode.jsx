@@ -227,7 +227,7 @@ function ExerciseResult({ exercise, onSelect }) {
   )
 }
 
-export default function SearchMode({ onMuscleSelect, onExerciseSelect }) {
+export default function SearchMode({ onMuscleSelect, onExerciseSelect, isPhone = false }) {
   const [query, setQuery] = useState('')
   const [searchType, setSearchType] = useState('all')
   const tokens = useMemo(() => getTokens(query), [query])
@@ -256,11 +256,11 @@ export default function SearchMode({ onMuscleSelect, onExerciseSelect }) {
   const showEmpty = query.length > 1 && !hasResults
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 14, padding: '24px 20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: isPhone ? 10 : 14, padding: isPhone ? '12px 10px' : '24px 20px' }}>
       <div>
         <h2
           style={{
-            fontSize: 26,
+            fontSize: isPhone ? 20 : 26,
             fontWeight: 850,
             color: '#f1f5f9',
             margin: 0,
@@ -270,7 +270,7 @@ export default function SearchMode({ onMuscleSelect, onExerciseSelect }) {
         >
           Search exercises and videos
         </h2>
-        <p style={{ fontSize: 14, color: '#64748b' }}>
+        <p style={{ display: isPhone ? 'none' : 'block', fontSize: 14, color: '#64748b' }}>
           Search by body area, goal, pain type, equipment, difficulty, exercise, or video source.
         </p>
       </div>
@@ -291,10 +291,10 @@ export default function SearchMode({ onMuscleSelect, onExerciseSelect }) {
           type="text"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Try: knee pain, shoulder mobility, band, beginner, Cleveland Clinic..."
+          placeholder={isPhone ? 'Try: knee pain, band, beginner...' : 'Try: knee pain, shoulder mobility, band, beginner, Cleveland Clinic...'}
           style={{
             width: '100%',
-            padding: '13px 44px',
+            padding: isPhone ? '11px 40px' : '13px 44px',
             borderRadius: 8,
             background: '#0d1b2e',
             border: '1px solid #1e3a5f',
@@ -336,7 +336,7 @@ export default function SearchMode({ onMuscleSelect, onExerciseSelect }) {
             key={type.id}
             onClick={() => setSearchType(type.id)}
             style={{
-              padding: '7px 14px',
+              padding: isPhone ? '7px 10px' : '7px 14px',
               borderRadius: 8,
               fontSize: 13,
               fontWeight: 750,
@@ -423,7 +423,7 @@ export default function SearchMode({ onMuscleSelect, onExerciseSelect }) {
             <div style={{ fontSize: 11, fontWeight: 800, color: '#475569', letterSpacing: '0.08em', marginBottom: 12, textTransform: 'uppercase' }}>
               Browse by Body Region
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr', gap: 8 }}>
               {[
                 { label: 'Upper Body', muscles: ['trapezius', 'chest', 'front-deltoids', 'biceps'], color: '#3b82f6' },
                 { label: 'Core', muscles: ['abs', 'obliques', 'lower-back'], color: '#8b5cf6' },
