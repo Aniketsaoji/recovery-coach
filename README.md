@@ -1,6 +1,6 @@
 # Recovery Coach
 
-A React/Vite playground project for making physical therapy easier by building simple exercise routines from body area, goal, and available time.
+A React/Vite playground project for making physical recovery easier by building simple exercise routines from body area, goal, and available time.
 
 ## Features
 
