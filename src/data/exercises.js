@@ -500,11 +500,11 @@ export const EXERCISES = [
     ]
   },
 
-  // ─── GLUTES ─────────────────────────────────────────────────────────────────
+  // ─── HIPS / GLUTES ───────────────────────────────────────────────────────────
   {
     id: 'hip-flexor-stretch',
     name: 'Hip Flexor Stretch (Kneeling)',
-    muscles: ['quadriceps', 'gluteal'],
+    muscles: ['hips', 'quadriceps', 'gluteal'],
     goals: ['stretch', 'mobility', 'reduce_pain'],
     difficulty: 'beginner',
     equipment: 'none',
@@ -523,9 +523,70 @@ export const EXERCISES = [
     ]
   },
   {
+    id: 'ninety-ninety-hip-switch',
+    name: '90/90 Hip Switch',
+    muscles: ['hips', 'gluteal', 'adductors'],
+    goals: ['mobility', 'stretch', 'reduce_pain'],
+    difficulty: 'beginner',
+    equipment: 'none',
+    sets: 3,
+    reps: 8,
+    painTypes: ['tight', 'dull'],
+    description: 'Improves hip internal and external rotation with a controlled seated transition. Helpful for stiff hips and squat depth.',
+    giphyQuery: '90 90 hip switch mobility exercise',
+    instructions: [
+      'Sit tall with both knees bent at roughly 90 degrees, one leg in front and one leg to the side.',
+      'Keep your chest lifted and rotate both knees to the opposite side.',
+      'Move slowly and use your hands behind you for support if needed.',
+      'Pause when both knees reach the floor on the new side.',
+      'Stay within a comfortable range and avoid forcing the knees down.',
+    ]
+  },
+  {
+    id: 'figure-four-stretch',
+    name: 'Figure 4 Stretch',
+    muscles: ['hips', 'gluteal'],
+    goals: ['stretch', 'mobility', 'reduce_pain'],
+    difficulty: 'beginner',
+    equipment: 'none',
+    sets: 3,
+    reps: 1,
+    hold: 30,
+    painTypes: ['tight', 'dull'],
+    description: 'Targets the outer hip and deep glute muscles, often useful for hip tightness and piriformis-type discomfort.',
+    giphyQuery: 'figure four stretch hip piriformis physical therapy',
+    instructions: [
+      'Lie on your back with knees bent and feet flat.',
+      'Cross one ankle over the opposite thigh to make a figure 4 shape.',
+      'Gently pull the uncrossed thigh toward your chest.',
+      'Hold when you feel a stretch in the outer hip or glute.',
+      'Keep your head and shoulders relaxed, then switch sides.',
+    ]
+  },
+  {
+    id: 'standing-hip-circles',
+    name: 'Standing Hip Circles',
+    muscles: ['hips'],
+    goals: ['mobility', 'reduce_pain'],
+    difficulty: 'beginner',
+    equipment: 'wall',
+    sets: 2,
+    reps: 8,
+    painTypes: ['tight', 'dull'],
+    description: 'Gently explores hip range of motion and warms up the joint for walking, squats, or lower-body exercise.',
+    giphyQuery: 'standing hip circles hip CARs mobility exercise',
+    instructions: [
+      'Stand tall near a wall or chair for balance.',
+      'Lift one knee in front of you to a comfortable height.',
+      'Circle the knee outward, then back down without twisting your trunk.',
+      'Reverse the circle after your reps.',
+      'Move slowly and keep the pelvis as steady as possible.',
+    ]
+  },
+  {
     id: 'glute-bridge',
     name: 'Glute Bridge',
-    muscles: ['gluteal', 'hamstring', 'lower-back'],
+    muscles: ['gluteal', 'hips', 'hamstring', 'lower-back'],
     goals: ['strengthen', 'reduce_pain'],
     difficulty: 'beginner',
     equipment: 'none',
@@ -546,7 +607,7 @@ export const EXERCISES = [
   {
     id: 'clamshell',
     name: 'Clamshell',
-    muscles: ['gluteal', 'adductors'],
+    muscles: ['hips', 'gluteal', 'adductors'],
     goals: ['strengthen', 'reduce_pain'],
     difficulty: 'beginner',
     equipment: 'none',
@@ -566,7 +627,7 @@ export const EXERCISES = [
   {
     id: 'hip-abduction-side-lying',
     name: 'Side-Lying Hip Abduction',
-    muscles: ['gluteal'],
+    muscles: ['hips', 'gluteal'],
     goals: ['strengthen'],
     difficulty: 'beginner',
     equipment: 'none',
@@ -584,9 +645,29 @@ export const EXERCISES = [
     ]
   },
   {
+    id: 'lateral-band-walk',
+    name: 'Lateral Band Walk',
+    muscles: ['hips', 'gluteal', 'knees'],
+    goals: ['strengthen', 'reduce_pain'],
+    difficulty: 'intermediate',
+    equipment: 'resistance_band',
+    sets: 3,
+    reps: 10,
+    painTypes: ['dull', 'tight'],
+    description: 'Strengthens the side hip stabilizers that help control knee position during walking, stairs, and squats.',
+    giphyQuery: 'lateral band walk hip abductor exercise',
+    instructions: [
+      'Place a resistance band above your knees or around your ankles.',
+      'Stand with feet hip-width apart and slight tension on the band.',
+      'Bend your knees slightly and keep your chest tall.',
+      'Step sideways with control, keeping your toes pointed forward.',
+      'Take slow steps each direction without letting the knees collapse inward.',
+    ]
+  },
+  {
     id: 'hip-thrust',
     name: 'Hip Thrust',
-    muscles: ['gluteal', 'hamstring'],
+    muscles: ['gluteal', 'hips', 'hamstring'],
     goals: ['strengthen'],
     difficulty: 'intermediate',
     equipment: 'chair',
@@ -627,7 +708,7 @@ export const EXERCISES = [
   {
     id: 'fire-hydrant',
     name: 'Fire Hydrant',
-    muscles: ['gluteal'],
+    muscles: ['hips', 'gluteal'],
     goals: ['strengthen', 'mobility'],
     difficulty: 'beginner',
     equipment: 'none',
@@ -708,11 +789,75 @@ export const EXERCISES = [
     ]
   },
 
+  // ─── KNEES ───────────────────────────────────────────────────────────────────
+  {
+    id: 'heel-slide',
+    name: 'Heel Slide',
+    muscles: ['knees', 'quadriceps', 'hamstring'],
+    goals: ['mobility', 'reduce_pain'],
+    difficulty: 'beginner',
+    equipment: 'none',
+    sets: 3,
+    reps: 12,
+    painTypes: ['tight', 'dull'],
+    description: 'Gently restores knee bending range of motion without heavy loading. Useful when the knee feels stiff or guarded.',
+    giphyQuery: 'heel slide knee range of motion physical therapy',
+    instructions: [
+      'Lie on your back with both legs straight.',
+      'Slowly slide one heel toward your buttock, bending the knee as far as comfortable.',
+      'Pause briefly at the comfortable end range.',
+      'Slide the heel back out until the leg is straight again.',
+      'Keep the motion smooth and pain-free; use a towel under the heel if the floor has too much friction.',
+    ]
+  },
+  {
+    id: 'quad-set',
+    name: 'Quad Set',
+    muscles: ['knees', 'quadriceps'],
+    goals: ['strengthen', 'reduce_pain'],
+    difficulty: 'beginner',
+    equipment: 'none',
+    sets: 3,
+    reps: 15,
+    hold: 5,
+    painTypes: ['dull', 'tight'],
+    description: 'Activates the quadriceps with almost no joint movement, making it a gentle starting point for knee control.',
+    giphyQuery: 'quad set knee exercise physical therapy',
+    instructions: [
+      'Sit or lie with one leg straight and a small towel under the knee if helpful.',
+      'Press the back of your knee gently down toward the floor or towel.',
+      'Tighten the front thigh muscle until the kneecap lifts slightly.',
+      'Hold for 5 seconds while breathing normally.',
+      'Relax fully between reps and avoid pushing into sharp pain.',
+    ]
+  },
+  {
+    id: 'short-arc-quad',
+    name: 'Short Arc Quad',
+    muscles: ['knees', 'quadriceps'],
+    goals: ['strengthen', 'reduce_pain'],
+    difficulty: 'beginner',
+    equipment: 'none',
+    sets: 3,
+    reps: 12,
+    hold: 2,
+    painTypes: ['dull', 'tight'],
+    description: 'Builds knee extension strength through a small, controlled range while keeping the joint supported.',
+    giphyQuery: 'short arc quad knee extension physical therapy',
+    instructions: [
+      'Lie on your back with a rolled towel or pillow under your knee.',
+      'Keep the back of the knee resting on the support.',
+      'Straighten the knee by lifting your heel until the leg is nearly straight.',
+      'Squeeze the quad for 2 seconds at the top.',
+      'Lower the heel slowly with control.',
+    ]
+  },
+
   // ─── QUADRICEPS ──────────────────────────────────────────────────────────────
   {
     id: 'quad-stretch-standing',
     name: 'Standing Quad Stretch',
-    muscles: ['quadriceps'],
+    muscles: ['quadriceps', 'knees'],
     goals: ['stretch', 'mobility', 'reduce_pain'],
     difficulty: 'beginner',
     equipment: 'wall',
@@ -733,7 +878,7 @@ export const EXERCISES = [
   {
     id: 'terminal-knee-extension',
     name: 'Terminal Knee Extension (TKE)',
-    muscles: ['quadriceps'],
+    muscles: ['knees', 'quadriceps'],
     goals: ['strengthen', 'reduce_pain'],
     difficulty: 'beginner',
     equipment: 'resistance_band',
@@ -753,7 +898,7 @@ export const EXERCISES = [
   {
     id: 'straight-leg-raise',
     name: 'Straight Leg Raise',
-    muscles: ['quadriceps', 'abs'],
+    muscles: ['knees', 'quadriceps', 'abs'],
     goals: ['strengthen', 'reduce_pain'],
     difficulty: 'beginner',
     equipment: 'none',
@@ -773,7 +918,7 @@ export const EXERCISES = [
   {
     id: 'wall-sit',
     name: 'Wall Sit',
-    muscles: ['quadriceps', 'gluteal'],
+    muscles: ['knees', 'quadriceps', 'gluteal'],
     goals: ['strengthen'],
     difficulty: 'intermediate',
     equipment: 'wall',
@@ -793,7 +938,7 @@ export const EXERCISES = [
   {
     id: 'mini-squat',
     name: 'Mini Squat',
-    muscles: ['quadriceps', 'gluteal'],
+    muscles: ['knees', 'quadriceps', 'gluteal'],
     goals: ['strengthen', 'reduce_pain'],
     difficulty: 'beginner',
     equipment: 'wall',
@@ -813,7 +958,7 @@ export const EXERCISES = [
   {
     id: 'step-up',
     name: 'Step Up',
-    muscles: ['quadriceps', 'gluteal'],
+    muscles: ['knees', 'quadriceps', 'gluteal'],
     goals: ['strengthen'],
     difficulty: 'intermediate',
     equipment: 'chair',
@@ -833,7 +978,7 @@ export const EXERCISES = [
   {
     id: 'it-band-stretch',
     name: 'IT Band Stretch',
-    muscles: ['gluteal', 'quadriceps'],
+    muscles: ['gluteal', 'hips', 'knees', 'quadriceps'],
     goals: ['stretch', 'mobility', 'reduce_pain'],
     difficulty: 'beginner',
     equipment: 'wall',

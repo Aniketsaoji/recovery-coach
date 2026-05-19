@@ -87,6 +87,14 @@ export const MUSCLES = {
     category: 'lower_body',
     view: ['back']
   },
+  'hips': {
+    name: 'Hips',
+    description: 'Front and side hip area, including hip flexors, TFL, and stabilizers that influence walking, squats, and knee tracking.',
+    color: '#0f766e',
+    keywords: ['hip', 'hips', 'hip flexor', 'outer hip', 'side hip', 'front hip', 'TFL', 'IT band', 'iliotibial band', 'hip pain', 'hip tightness', 'hip mobility'],
+    category: 'lower_body',
+    view: ['front', 'back']
+  },
   'hamstring': {
     name: 'Hamstrings',
     description: 'Posterior thigh muscles responsible for knee flexion and hip extension.',
@@ -102,6 +110,14 @@ export const MUSCLES = {
     keywords: ['quad', 'thigh', 'knee', 'front of thigh', 'kneecap', 'knee pain', 'patella', 'quad pain', 'thigh pain', 'front thigh'],
     category: 'lower_body',
     view: ['front']
+  },
+  'knees': {
+    name: 'Knees',
+    description: 'Knee joint area, including kneecap tracking, end-range control, and basic load tolerance for walking and stairs.',
+    color: '#22c55e',
+    keywords: ['knee', 'knees', 'kneecap', 'patella', 'patellar', 'joint line', 'knee pain', 'knee stiffness', 'stairs', 'squat pain', 'runner knee'],
+    category: 'lower_body',
+    view: ['front', 'back']
   },
   'adductors': {
     name: 'Inner Thigh',

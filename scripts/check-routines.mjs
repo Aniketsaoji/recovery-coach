@@ -15,6 +15,8 @@ assert.deepEqual(gluteStretch20, [
   'IT Band Stretch',
   'Knee to Chest Stretch',
   'Hip Flexor Stretch (Kneeling)',
+  '90/90 Hip Switch',
+  'Figure 4 Stretch',
 ])
 
 assert.deepEqual(getFocusedExercises([], 'stretch', '20'), [])
@@ -25,9 +27,9 @@ assert.deepEqual(
     'IT Band Stretch',
     'Knee to Chest Stretch',
     'Hip Flexor Stretch (Kneeling)',
+    '90/90 Hip Switch',
+    'Figure 4 Stretch',
     'Chin Tuck',
-    'Upper Trap Stretch',
-    'Neck Side Stretch',
   ]
 )
 

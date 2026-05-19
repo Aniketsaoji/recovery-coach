@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Activity, Check, Clock, Dumbbell, Moon, Search, ShieldCheck, Sun, Zap } from 'lucide-react'
+import { Activity, AlertTriangle, Check, Clock, Dumbbell, Moon, Search, ShieldCheck, Sun, Zap } from 'lucide-react'
 import BodyMap from './components/BodyMap.jsx'
 import SearchMode from './components/SearchMode.jsx'
 import ExercisePanel from './components/ExercisePanel.jsx'
@@ -368,6 +368,35 @@ function MobileExerciseDrawer({ isOpen, selectedMuscleId, exercises, routineGoal
   )
 }
 
+function Disclaimer({ theme, isPhone }) {
+  const isLight = theme === 'light'
+
+  return (
+    <aside
+      style={{
+        width: '100%',
+        maxWidth: 720,
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 8,
+        padding: isPhone ? '8px 10px' : '10px 12px',
+        borderRadius: 10,
+        border: `1px solid ${isLight ? '#d8e1ec' : '#1e3a5f'}`,
+        background: isLight ? '#ffffff' : '#0d1b2e',
+        color: isLight ? '#65758b' : '#94a3b8',
+        fontSize: isPhone ? 11 : 12,
+        lineHeight: 1.45,
+      }}
+    >
+      <AlertTriangle size={14} style={{ color: '#f59e0b', flexShrink: 0, marginTop: 1 }} />
+      <span>
+        Not medical advice. Recovery Coach is a personal project for general exercise ideas; use your own
+        discretion and check with a qualified professional if you have pain, injury, or medical concerns.
+      </span>
+    </aside>
+  )
+}
+
 export default function App() {
   const [mode, setMode] = useState('map')
   const [theme, setTheme] = useState(() => localStorage.getItem('pt-theme') || 'dark')
@@ -692,6 +721,16 @@ export default function App() {
             )}
 
           </AnimatePresence>
+          <div
+            style={{
+              flexShrink: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              padding: isPhone ? '0 8px 8px' : isMobile ? '0 14px 14px' : '0 20px 18px',
+            }}
+          >
+            <Disclaimer theme={theme} isPhone={isPhone} />
+          </div>
         </div>
 
         {/* ── RIGHT PANEL (desktop) ── */}

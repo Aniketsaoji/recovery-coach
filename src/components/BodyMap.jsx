@@ -50,21 +50,33 @@ const BODY_PARTS = {
       labelPoint: [110, 235],
     },
     {
-      id: 'adductors',
-      label: 'Hips',
-      d: 'M83 244c16 13 24 34 26 64l1 79c-14-23-23-62-27-117-1-10-1-19 0-26Zm54 0c-16 13-24 34-26 64l-1 79c14-23 23-62 27-117 1-10 1-19 0-26Z',
-      labelPoint: [110, 283],
-    },
-    {
       id: 'quadriceps',
       label: 'Thighs',
       d: 'M59 242c20-11 42-3 50 19 5 35 2 82-9 124-10 14-29 14-39-1-9-44-10-104-2-142Zm102 0c-20-11-42-3-50 19-5 35-2 82 9 124 10 14 29 14 39-1 9-44 10-104 2-142Z',
       labelPoint: [110, 338],
     },
     {
+      id: 'hips',
+      label: 'Hips',
+      d: 'M61 238c11-2 22 2 31 12-7 15-11 35-13 60-10-8-17-22-21-42-1-13 0-23 3-30Zm98 0c-11-2-22 2-31 12 7 15 11 35 13 60 10-8 17-22 21-42 1-13 0-23-3-30Z',
+      labelPoint: [110, 264],
+    },
+    {
+      id: 'adductors',
+      label: 'Inner Thigh',
+      d: 'M83 244c16 13 24 34 26 64l1 79c-14-23-23-62-27-117-1-10-1-19 0-26Zm54 0c-16 13-24 34-26 64l-1 79c14-23 23-62 27-117 1-10 1-19 0-26Z',
+      labelPoint: [110, 283],
+    },
+    {
+      id: 'knees',
+      label: 'Knees',
+      d: 'M61 374c10 9 28 10 39 1 5 11 4 24-2 34-10 8-25 8-35-1-6-10-7-23-2-34Zm59 1c11 9 29 8 39-1 5 11 4 24-2 34-10 9-25 9-35 1-6-10-7-23-2-34Z',
+      labelPoint: [110, 393],
+    },
+    {
       id: 'calves',
       label: 'Lower Legs',
-      d: 'M65 371c13 13 32 13 43-1 5 44 1 85-13 114-11 9-25 7-31-5-6-39-5-76 1-108Zm90 0c-13 13-32 13-43-1-5 44-1 85 13 114 11 9 25 7 31-5 6-39 5-76-1-108Z',
+      d: 'M64 410c10 8 25 8 35 0 7 30 5 57-4 74-11 9-25 7-31-5-4-24-4-47 0-69Zm92 0c-10 8-25 8-35 0-7 30-5 57 4 74 11 9 25 7 31-5 4-24 4-47 0-69Z',
       labelPoint: [110, 431],
     },
   ],
@@ -112,15 +124,27 @@ const BODY_PARTS = {
       labelPoint: [110, 286],
     },
     {
+      id: 'hips',
+      label: 'Hips',
+      d: 'M57 250c11-8 25-9 39-2-11 15-17 35-19 60-15-8-22-39-20-58Zm106 0c-11-8-25-9-39-2 11 15 17 35 19 60 15-8 22-39 20-58Z',
+      labelPoint: [110, 282],
+    },
+    {
       id: 'hamstring',
       label: 'Hamstrings',
       d: 'M59 302c20-11 42-3 50 19 4 28 1 58-9 83-10 14-29 14-39-1-8-31-10-72-2-101Zm102 0c-20-11-42-3-50 19-4 28-1 58 9 83 10 14 29 14 39-1 8-31 10-72 2-101Z',
       labelPoint: [110, 361],
     },
     {
+      id: 'knees',
+      label: 'Knees',
+      d: 'M61 396c10 8 27 8 38 0 5 9 4 20-2 29-10 7-24 7-34-1-6-8-7-19-2-28Zm60 0c11 8 28 8 38 0 5 9 4 20-2 28-10 8-24 8-34 1-6-9-7-20-2-29Z',
+      labelPoint: [110, 415],
+    },
+    {
       id: 'calves',
       label: 'Calves',
-      d: 'M65 389c13 13 32 13 43-1 5 36 1 69-13 96-11 9-25 7-31-5-6-32-5-62 1-90Zm90 0c-13 13-32 13-43-1-5 36-1 69 13 96 11 9 25 7 31-5 6-32 5-62-1-90Z',
+      d: 'M64 425c10 8 25 8 35 0 7 24 5 43-4 59-11 9-25 7-31-5-4-18-4-36 0-54Zm92 0c-10 8-25 8-35 0-7 24-5 43 4 59 11 9 25 7 31-5 4-18 4-36 0-54Z',
       labelPoint: [110, 436],
     },
   ],
@@ -131,6 +155,85 @@ const SEPARATOR_PATHS = {
     'M80 166c18 8 42 8 60 0M84 244c15 10 37 10 52 0M110 90v390M75 196c-7 29-8 55-1 78M145 196c7 29 8 55 1 78M62 371c14 14 34 14 46-1M158 371c-14 14-34 14-46-1',
   back:
     'M78 135c20 10 44 10 64 0M84 208c16 8 36 8 52 0M86 265c14 8 34 8 48 0M110 90v390M75 196c-7 29-8 55-1 78M145 196c7 29 8 55 1 78M62 389c14 13 34 13 46-1M158 389c-14 13-34 13-46-1',
+}
+
+const VIEWBOX = { width: 220, height: 520 }
+const zone = (id, cx, cy, rx, ry, priority = 1, slop = 1.05) => ({ id, cx, cy, rx, ry, priority, slop })
+
+const HIT_ZONES = {
+  front: [
+    zone('trapezius', 110, 98, 42, 31, 3),
+    zone('chest', 110, 139, 42, 40, 2),
+    zone('front-deltoids', 71, 143, 34, 42, 4),
+    zone('front-deltoids', 149, 143, 34, 42, 4),
+    zone('biceps', 56, 211, 25, 61, 2),
+    zone('biceps', 164, 211, 25, 61, 2),
+    zone('forearm', 54, 279, 24, 45, 4),
+    zone('forearm', 166, 279, 24, 45, 4),
+    zone('abs', 110, 201, 37, 52, 2),
+    zone('obliques', 78, 220, 24, 58, 4),
+    zone('obliques', 142, 220, 24, 58, 4),
+    zone('hips', 73, 269, 29, 47, 6),
+    zone('hips', 147, 269, 29, 47, 6),
+    zone('adductors', 101, 319, 14, 76, 7),
+    zone('adductors', 119, 319, 14, 76, 7),
+    zone('quadriceps', 76, 331, 29, 68, 2),
+    zone('quadriceps', 144, 331, 29, 68, 2),
+    zone('knees', 81, 395, 25, 26, 8),
+    zone('knees', 139, 395, 25, 26, 8),
+    zone('calves', 82, 449, 29, 49, 3),
+    zone('calves', 138, 449, 29, 49, 3),
+  ],
+  back: [
+    zone('trapezius', 110, 113, 43, 36, 3),
+    zone('front-deltoids', 71, 145, 34, 42, 4),
+    zone('front-deltoids', 149, 145, 34, 42, 4),
+    zone('upper-back', 110, 170, 43, 60, 2),
+    zone('triceps', 56, 213, 25, 62, 2),
+    zone('triceps', 164, 213, 25, 62, 2),
+    zone('forearm', 54, 279, 24, 45, 4),
+    zone('forearm', 166, 279, 24, 45, 4),
+    zone('lower-back', 110, 240, 33, 36, 5),
+    zone('hips', 73, 282, 28, 43, 6),
+    zone('hips', 147, 282, 28, 43, 6),
+    zone('gluteal', 87, 292, 30, 39, 4),
+    zone('gluteal', 133, 292, 30, 39, 4),
+    zone('hamstring', 80, 358, 30, 66, 2),
+    zone('hamstring', 140, 358, 30, 66, 2),
+    zone('knees', 81, 416, 25, 25, 8),
+    zone('knees', 139, 416, 25, 25, 8),
+    zone('calves', 82, 456, 29, 42, 3),
+    zone('calves', 138, 456, 29, 42, 3),
+  ],
+}
+
+function getSvgPoint(event, svgElement) {
+  if (!svgElement) return null
+  const rect = svgElement.getBoundingClientRect()
+  if (!rect.width || !rect.height) return null
+
+  return {
+    x: ((event.clientX - rect.left) / rect.width) * VIEWBOX.width,
+    y: ((event.clientY - rect.top) / rect.height) * VIEWBOX.height,
+  }
+}
+
+function getHitZone(view, point) {
+  if (!point) return null
+  const candidates = HIT_ZONES[view]
+    .map((hitZone) => {
+      const dx = (point.x - hitZone.cx) / hitZone.rx
+      const dy = (point.y - hitZone.cy) / hitZone.ry
+      const score = dx * dx + dy * dy
+      const intentScore = score - hitZone.priority * 0.08
+      return score <= hitZone.slop ? { hitZone, score, intentScore } : null
+    })
+    .filter(Boolean)
+
+  if (candidates.length === 0) return null
+
+  candidates.sort((a, b) => a.intentScore - b.intentScore || a.score - b.score)
+  return candidates[0].hitZone
 }
 
 function BodyBase({ clipId, view, theme }) {
@@ -163,7 +266,7 @@ function BodyBase({ clipId, view, theme }) {
   )
 }
 
-function MuscleGroup({ part, selectedMuscleId, hoveredMuscle, onMuscleClick, onMouseEnter, onMouseLeave }) {
+function MuscleGroup({ part, selectedMuscleId, hoveredMuscle, onMuscleClick, onFocus, onBlur }) {
   const muscle = MUSCLES[part.id]
   if (!muscle) return null
 
@@ -178,16 +281,15 @@ function MuscleGroup({ part, selectedMuscleId, hoveredMuscle, onMuscleClick, onM
       tabIndex={0}
       aria-pressed={isSelected}
       aria-label={`Select ${muscle.name}`}
-      onClick={() => onMuscleClick(part.id)}
       onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault()
           onMuscleClick(part.id)
         }
       }}
-      onMouseEnter={() => onMouseEnter(part.id)}
-      onMouseLeave={onMouseLeave}
-      style={{ cursor: 'pointer', outline: 'none' }}
+      onFocus={() => onFocus(part.id)}
+      onBlur={onBlur}
+      style={{ outline: 'none' }}
     >
       <motion.path
         d={part.d}
@@ -200,6 +302,7 @@ function MuscleGroup({ part, selectedMuscleId, hoveredMuscle, onMuscleClick, onM
         }}
         transition={{ duration: 0.16 }}
         filter={isSelected ? 'url(#selectedGlow)' : isHovered ? 'url(#softGlow)' : undefined}
+        style={{ pointerEvents: 'none' }}
       />
     </g>
   )
@@ -210,11 +313,19 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
   const [hoveredMuscle, setHoveredMuscle] = useState(null)
   const [mousePos, setMousePos] = useState(null)
   const containerRef = useRef(null)
+  const svgRef = useRef(null)
   const parts = BODY_PARTS[view]
   const selectedIds = Array.isArray(selectedMuscleId) ? selectedMuscleId : [selectedMuscleId].filter(Boolean)
   const activeId = hoveredMuscle || selectedIds[0]
   const activeMuscle = activeId ? MUSCLES[activeId] : null
   const hoveredMuscleObj = hoveredMuscle ? MUSCLES[hoveredMuscle] : null
+
+  const setActiveHover = (muscleId) => {
+    const nextMuscleId = muscleId ?? null
+    if (hoveredMuscle === nextMuscleId) return
+    setHoveredMuscle(nextMuscleId)
+    onHoverChange?.(nextMuscleId)
+  }
 
   const handleContainerMouseMove = (e) => {
     if (!containerRef.current) return
@@ -224,6 +335,7 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
 
   const handleContainerMouseLeave = () => {
     setMousePos(null)
+    setActiveHover(null)
   }
 
   const selectedIsHidden = useMemo(() => {
@@ -232,13 +344,15 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
   }, [parts, selectedIds])
 
   const clipId = `body-clip-${view}`
-  const handleMouseEnter = (muscleId) => {
-    setHoveredMuscle(muscleId)
-    onHoverChange?.(muscleId)
+  const handleMapMouseMove = (event) => {
+    handleContainerMouseMove(event)
+    const hitZone = getHitZone(view, getSvgPoint(event, svgRef.current))
+    setActiveHover(hitZone?.id ?? null)
   }
-  const handleMouseLeave = () => {
-    setHoveredMuscle(null)
-    onHoverChange?.(null)
+
+  const handleMapClick = (event) => {
+    const hitZone = getHitZone(view, getSvgPoint(event, svgRef.current))
+    if (hitZone) onMuscleClick(hitZone.id)
   }
 
   return (
@@ -296,8 +410,6 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
       <div
         ref={containerRef}
         className="relative"
-        onMouseMove={handleContainerMouseMove}
-        onMouseLeave={handleContainerMouseLeave}
         style={{
           width: mobile ? 'clamp(140px, 40vw, 160px)' : wizard ? 'clamp(170px, 20vw, 200px)' : compact ? 'clamp(135px, 16vw, 165px)' : 'clamp(270px, 32vw, 330px)',
           aspectRatio: '220 / 520',
@@ -310,6 +422,7 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
       >
         <AnimatePresence mode="wait">
           <motion.svg
+            ref={svgRef}
             key={view}
             viewBox="0 0 220 520"
             preserveAspectRatio="xMidYMid meet"
@@ -317,7 +430,10 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: view === 'front' ? 16 : -16 }}
             transition={{ duration: 0.25 }}
-            style={{ width: '100%', height: '100%', overflow: 'visible' }}
+            onMouseMove={handleMapMouseMove}
+            onMouseLeave={handleContainerMouseLeave}
+            onClick={handleMapClick}
+            style={{ width: '100%', height: '100%', overflow: 'visible', cursor: hoveredMuscle ? 'pointer' : 'default' }}
           >
             <defs>
               <filter id="softGlow" x="-35%" y="-35%" width="170%" height="170%">
@@ -345,8 +461,8 @@ export default function BodyMap({ selectedMuscleId, onMuscleClick, theme = 'dark
                   selectedMuscleId={selectedMuscleId}
                   hoveredMuscle={hoveredMuscle}
                   onMuscleClick={onMuscleClick}
-                  onMouseEnter={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
+                  onFocus={setActiveHover}
+                  onBlur={() => setActiveHover(null)}
                 />
               ))}
             </g>
