@@ -25,17 +25,6 @@ Vite will print a local URL, usually `http://localhost:5173`.
 npm run build
 ```
 
-## Deploy to GitHub Pages
-
-This repo includes a GitHub Actions workflow at `.github/workflows/deploy-pages.yml`.
-
-1. Push the repo to GitHub.
-2. In GitHub, go to `Settings` -> `Pages`.
-3. Set `Build and deployment` -> `Source` to `GitHub Actions`.
-4. Push to the `main` branch.
-
-The workflow installs dependencies, runs `npm run build`, and deploys the generated `dist` folder to GitHub Pages.
-
 ## Notes
 
 - This project is an exercise discovery prototype, not medical advice.
