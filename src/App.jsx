@@ -29,7 +29,7 @@ function WizardBoard({
   onGoalChange,
   onTimeChange,
   onMuscleSelect,
-  onClearAreas,
+  onRemoveArea,
   onBuildRoutine,
 }) {
   const [step, setStep] = useState(1)
@@ -158,16 +158,24 @@ function WizardBoard({
               />
             </div>
 
-            {selectedAreas.length > 0 && (
+            {selectedMuscleIds.length > 0 && (
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
-                {selectedAreas.map((area) => (
-                  <span key={area} style={{ borderRadius: 999, background: isLight ? '#e8f3ff' : '#1e3a5f', color: isLight ? '#1d4ed8' : '#bfdbfe', fontSize: 12, fontWeight: 500, padding: '4px 10px' }}>
-                    {area}
-                  </span>
-                ))}
-                <button type="button" onClick={onClearAreas} style={{ border: `1px solid ${border}`, background: 'transparent', color: quiet, borderRadius: 7, fontSize: 12, fontWeight: 500, padding: '4px 8px', cursor: 'pointer' }}>
-                  Clear
-                </button>
+                {selectedMuscleIds.map((id) => {
+                  const name = MUSCLES[id]?.name
+                  if (!name) return null
+                  return (
+                    <span key={id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, borderRadius: 999, background: isLight ? '#e8f3ff' : '#1e3a5f', color: isLight ? '#1d4ed8' : '#bfdbfe', fontSize: 12, fontWeight: 500, padding: '4px 10px' }}>
+                      {name}
+                      <button
+                        type="button"
+                        onClick={() => onRemoveArea(id)}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', opacity: 0.6, lineHeight: 1 }}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )
+                })}
               </div>
             )}
 
@@ -425,6 +433,8 @@ export default function App() {
   const [isMobile, setIsMobile] = useState(false)
   const [isPhone, setIsPhone] = useState(false)
 
+  const isLight = theme === 'light'
+
   useEffect(() => {
     const check = () => {
       setIsMobile(window.innerWidth < 1200)
@@ -454,6 +464,14 @@ export default function App() {
   const handleClearAreas = useCallback(() => {
     setSelectedMuscleId(null)
     setSelectedMuscleIds([])
+  }, [])
+
+  const handleRemoveArea = useCallback((muscleId) => {
+    setSelectedMuscleIds((current) => {
+      const next = current.filter((id) => id !== muscleId)
+      setSelectedMuscleId(next.at(-1) ?? null)
+      return next
+    })
   }, [])
 
   const handleMuscleFocus = useCallback((muscleId) => {
@@ -519,9 +537,9 @@ export default function App() {
         style={{
           height: isPhone ? 54 : 60,
           borderBottom: '1px solid #1e3a5f',
-          display: 'flex',
+          display: 'grid',
+          gridTemplateColumns: '1fr auto 1fr',
           alignItems: 'center',
-          justifyContent: 'space-between',
           padding: isPhone ? '0 10px' : '0 24px',
           flexShrink: 0,
           background: 'rgba(6,11,20,0.95)',
@@ -568,43 +586,53 @@ export default function App() {
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <nav style={{ display: 'flex', gap: 4 }}>
-          {TABS.map(({ id, label, Icon }) => (
-            <button
-              key={id}
-              onClick={() => setMode(id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '7px 14px',
-                borderRadius: 10,
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                border: 'none',
-                background: mode === id
-                  ? 'linear-gradient(135deg, #3b82f620, #06b6d420)'
-                  : 'transparent',
-                color: mode === id ? '#60a5fa' : '#64748b',
-                borderBottom: mode === id ? '2px solid #3b82f6' : '2px solid transparent',
-              }}
-              onMouseEnter={(e) => {
-                if (mode !== id) e.currentTarget.style.color = '#94a3b8'
-              }}
-              onMouseLeave={(e) => {
-                if (mode !== id) e.currentTarget.style.color = '#64748b'
-              }}
-            >
-              <Icon size={15} />
-              <span className="hidden sm:inline">{label}</span>
-            </button>
-          ))}
+        {/* Mode Toggle */}
+        <nav
+          style={{
+            display: 'flex',
+            gap: 2,
+            padding: 3,
+            borderRadius: 12,
+            background: isLight ? '#e8eef6' : '#0d1b2e',
+            border: `1px solid ${isLight ? '#d0dbe8' : '#1e3a5f'}`,
+          }}
+        >
+          {TABS.map(({ id, label, Icon }) => {
+            const active = mode === id
+            return (
+              <button
+                key={id}
+                onClick={() => setMode(id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '6px 14px',
+                  borderRadius: 9,
+                  fontSize: 13,
+                  fontWeight: active ? 700 : 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.18s ease',
+                  border: 'none',
+                  background: active
+                    ? isLight ? '#ffffff' : '#1e3a5f'
+                    : 'transparent',
+                  color: active
+                    ? isLight ? '#1d4ed8' : '#93c5fd'
+                    : isLight ? '#64748b' : '#475569',
+                  boxShadow: active
+                    ? isLight ? '0 1px 4px rgba(0,0,0,0.12)' : '0 1px 4px rgba(0,0,0,0.4)'
+                    : 'none',
+                }}
+              >
+                <Icon size={14} />
+                <span className="hidden sm:inline">{label}</span>
+              </button>
+            )
+          })}
         </nav>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
           {/* Selected muscle indicator */}
           <AnimatePresence>
             {muscle && (
@@ -711,7 +739,7 @@ export default function App() {
                   onGoalChange={setGoalId}
                   onTimeChange={setTimeId}
                   onMuscleSelect={handleMuscleSelect}
-                  onClearAreas={handleClearAreas}
+                  onRemoveArea={handleRemoveArea}
                   onBuildRoutine={handleBuildRoutine}
                 />
               </motion.div>

@@ -5,13 +5,6 @@ import ExerciseCard from './ExerciseCard.jsx'
 import { MUSCLES } from '../data/muscles.js'
 import { getExerciseVideo, getYouTubeEmbedUrl } from '../data/youtubeVideos.js'
 
-const FILTER_TABS = [
-  { id: 'all', label: 'All' },
-  { id: 'strengthen', label: 'Strengthen' },
-  { id: 'stretch', label: 'Stretch' },
-  { id: 'mobility', label: 'Mobility' },
-  { id: 'reduce_pain', label: 'Pain Relief' },
-]
 
 function EmptyState() {
   return (
@@ -86,75 +79,35 @@ function EmptyState() {
 }
 
 export default function ExercisePanel({ selectedMuscleId, exercises, routineGoalId, onClose }) {
-  const [activeFilter, setActiveFilter] = useState('all')
   const [activeExerciseId, setActiveExerciseId] = useState(null)
   const [hasInteractedWithVideo, setHasInteractedWithVideo] = useState(false)
   const [videoResetKey, setVideoResetKey] = useState(0)
 
   const muscle = selectedMuscleId ? MUSCLES[selectedMuscleId] : null
 
-  const exerciseCounts = useMemo(() => {
-    return FILTER_TABS.reduce((counts, tab) => {
-      counts[tab.id] =
-        tab.id === 'all'
-          ? exercises.length
-          : exercises.filter((ex) => ex.goals.includes(tab.id)).length
-      return counts
-    }, {})
-  }, [exercises])
-
-  const filteredExercises = useMemo(() => {
-    return activeFilter === 'all'
-      ? exercises
-      : exercises.filter((ex) => ex.goals.includes(activeFilter))
-  }, [activeFilter, exercises])
-
   const activeExercise = useMemo(() => {
     return (
-      filteredExercises.find((exercise) => exercise.id === activeExerciseId) ||
-      filteredExercises[0] ||
+      exercises.find((exercise) => exercise.id === activeExerciseId) ||
       exercises[0] ||
       null
     )
-  }, [activeExerciseId, exercises, filteredExercises])
+  }, [activeExerciseId, exercises])
 
   const activeVideo = getExerciseVideo(activeExercise)
   const activeVideoUrl = getYouTubeEmbedUrl(activeExercise, hasInteractedWithVideo)
-  const preferredFilter = useMemo(() => {
-    const hasRoutineGoal = FILTER_TABS.some((tab) => tab.id === routineGoalId)
-    const hasGoalExercises = exercises.some((exercise) => exercise.goals.includes(routineGoalId))
-    return hasRoutineGoal && hasGoalExercises ? routineGoalId : 'all'
-  }, [exercises, routineGoalId])
-
-  const handleFilterChange = (nextFilter) => {
-    if (nextFilter === activeFilter) return
-
-    const nextExercises = nextFilter === 'all'
-      ? exercises
-      : exercises.filter((exercise) => exercise.goals.includes(nextFilter))
-
-    setActiveFilter(nextFilter)
-    setActiveExerciseId(nextExercises[0]?.id ?? exercises[0]?.id ?? null)
-    setHasInteractedWithVideo(false)
-    setVideoResetKey((key) => key + 1)
-  }
 
   useEffect(() => {
-    const preferredExercises = preferredFilter === 'all'
-      ? exercises
-      : exercises.filter((exercise) => exercise.goals.includes(preferredFilter))
-    setActiveFilter(preferredFilter)
-    setActiveExerciseId(preferredExercises[0]?.id ?? exercises[0]?.id ?? null)
+    setActiveExerciseId(exercises[0]?.id ?? null)
     setHasInteractedWithVideo(false)
     setVideoResetKey((key) => key + 1)
-  }, [selectedMuscleId, exercises, preferredFilter])
+  }, [selectedMuscleId, exercises])
 
   useEffect(() => {
-    if (!filteredExercises.length) return
-    if (!filteredExercises.some((exercise) => exercise.id === activeExerciseId)) {
-      setActiveExerciseId(filteredExercises[0].id)
+    if (!exercises.length) return
+    if (!exercises.some((exercise) => exercise.id === activeExerciseId)) {
+      setActiveExerciseId(exercises[0].id)
     }
-  }, [activeExerciseId, filteredExercises])
+  }, [activeExerciseId, exercises])
 
   return (
     <div
@@ -269,59 +222,6 @@ export default function ExercisePanel({ selectedMuscleId, exercises, routineGoal
               </div>
             </div>
 
-            {/* Filter tabs */}
-            <div
-              style={{
-                display: 'flex',
-                gap: 6,
-                padding: '8px 20px',
-                overflowX: 'auto',
-                flexShrink: 0,
-                borderBottom: '1px solid #1e3a5f',
-              }}
-            >
-              {FILTER_TABS.map((tab) => {
-                const count = exerciseCounts[tab.id]
-                if (count === 0 && tab.id !== 'all') return null
-
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => handleFilterChange(tab.id)}
-                    style={{
-                      padding: '5px 11px',
-                      borderRadius: 20,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      transition: 'all 0.2s ease',
-                      background:
-                        activeFilter === tab.id
-                          ? `linear-gradient(135deg, ${muscle.color}, #06b6d4)`
-                          : '#1e3a5f30',
-                      border: activeFilter === tab.id ? 'none' : '1px solid #1e3a5f',
-                      color: activeFilter === tab.id ? '#fff' : '#64748b',
-                      boxShadow: activeFilter === tab.id ? `0 0 12px ${muscle.color}40` : 'none',
-                    }}
-                  >
-                    {tab.label}
-                    {count > 0 && (
-                      <span
-                        style={{
-                          marginLeft: 5,
-                          fontSize: 10,
-                          opacity: 0.8,
-                        }}
-                      >
-                        {count}
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-
             {/* Exercise grid */}
             <div
               style={{
@@ -330,35 +230,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, routineGoal
                 padding: '12px 20px 16px',
               }}
             >
-              {filteredExercises.length === 0 ? (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 40,
-                    gap: 12,
-                    color: '#475569',
-                    textAlign: 'center',
-                  }}
-                >
-                  <Activity size={32} style={{ opacity: 0.4 }} />
-                  <p style={{ fontSize: 14 }}>No exercises for this filter</p>
-                  <button
-                    onClick={() => setActiveFilter('all')}
-                    style={{
-                      fontSize: 12,
-                      color: muscle.color,
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Show all exercises
-                  </button>
-                </div>
-              ) : (
+              {exercises.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {activeExercise && (
                     <div>
@@ -472,7 +344,7 @@ export default function ExercisePanel({ selectedMuscleId, exercises, routineGoal
                       gap: 16,
                     }}
                   >
-                    {filteredExercises.map((exercise) => (
+                    {exercises.map((exercise) => (
                       <div
                         key={exercise.id}
                         style={{
